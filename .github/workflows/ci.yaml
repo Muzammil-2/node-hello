@@ -1,105 +1,39 @@
 
-# CI for hello-node Service
+name: Node.js CI
 
 name: product-catalog-ci
 on:
   push:
-     branches: [ "master" ]
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        steps:
-        # checkout codes
-        - name: checkout code
-          uses: actions/checkout@v4
-        # setup node
-        - name: Setup node 18
-          uses: actions/setup-node@v3
-          with:
-            node-version: 18
+    steps:
+      # 1. Checkout repo code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-        - name: Build
-          run: |
-              npm install
-            
+      # 2. Setup Node.js (choose version)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'     # Change to your version (e.g., 16, 20)
+          cache: 'npm'           # Enable caching for faster builds
 
-        # - name: unit tests
-        #   run: |
-        #     npm test
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm install
 
-    # code-quality:
-    #     runs-on: ubuntu-latest
+      # # 4. Run tests
+      # - name: Run tests
+      #   run: npm test
 
-    #     steps:
-    #     - name: checkout code
-    #       uses: actions/checkout@v4
-        
-    #     - name: Setup node 18
-    #       uses: actions/setup-node@v3
-    #       with:
-    #         node-version: 18
+      # 5. (Optional) Build project
+      # - name: Build project
+      #   run: npm run build
 
-    #     - name: Run eslint
-    #       uses: eslint/eslint-action@v2
-    #       with:
-    #         eslint-version: latest
-    #         working-directory: s
-
-    docker:
-        runs-on: ubuntu-latest
-
-        needs: build
-
-        steps:
-        - name: checkout code
-          uses: actions/checkout@v4
-
-        - name: Install Docker
-          uses: docker/setup-buildx-action@v1
-        
-        - name: Login to Docker
-          uses: docker/login-action@v3
-          with:
-            username: ${{ secrets.DOCKER_USERNAME }}
-            password: ${{ secrets.DOCKER_TOKEN }}
-
-        - name: Docker Push
-          uses: docker/build-push-action@v6
-          with:
-            context: .
-            file: ./Dockerfile
-            push: true
-            tags: ${{ secrets.DOCKER_USERNAME }}/product-catalog:${{github.run_id}}
-
-    
-    updatek8s:
-        runs-on: ubuntu-latest
-
-        needs: docker
-
-        steps:
-        - name: checkout code
-          uses: actions/checkout@v4
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-
-        - name: Update tag in kubernetes deployment manifest
-          run: | 
-               sed -i "s|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/node-hello:${{github.run_id}}|" kubernetes/deployment.yaml
-        
-        - name: Commit and push changes
-          run: |
-            git config --global user.email "muzammil01vivek@gmail.com"
-            git config --global user.name "Muzammil-2"
-            git add .
-            git commit -m "[CI]: Update product catalog image tag"
-            git push origin HEAD:main -f
-
-        
-        
-          
-
-
-        
+     
