@@ -1,15 +1,36 @@
 
-name: product-catalog-ci
+name: Node.js CI
 
-on: 
-    pull_request:
-        branches:
-        - main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        steps:
-        - name: checkout code
-          uses: actions/checkout@v4
+    steps:
+      # 1. Checkout repo code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Setup Node.js (choose version)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'     # Change to your version (e.g., 16, 20)
+          cache: 'npm'           # Enable caching for faster builds
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # # 4. Run tests
+      # - name: Run tests
+      #   run: npm test
+
+      # 5. (Optional) Build project
+      - name: Build project
+        run: npm run build
