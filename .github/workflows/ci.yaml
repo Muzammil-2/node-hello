@@ -1,4 +1,4 @@
-name: product-catalog-ci
+name: hello-node-ci
 on:
    push:
      branches: [ "master" ]
