@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: quadrimuzammil/node-hello:${{github.run_id}}
+        image: quadrimuzammil/node-hello:17438538514
         ports:
         - containerPort: 80
